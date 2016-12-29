@@ -1,0 +1,23 @@
+{
+	"restartable": "rs",
+	"ignore": [
+		".git",
+		".svn",
+		"node_modules/**/node_modules"
+	],
+	"verbose": true,
+	"execMap": {
+		"js": "node --harmony"
+	},
+	"watch": [
+		"phantom/",
+		"modules/",
+		"router",
+		"app.js"
+	],
+	"env": {
+		"NODE_ENV" : "development",
+		"port"     : 8000
+	},
+	"ext": "js json"
+}
