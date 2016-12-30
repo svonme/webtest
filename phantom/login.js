@@ -1,9 +1,8 @@
 import imitate from "./imitate";
-import console from "./console";
 
 class _Login extends imitate{
-	constructor(instance){
-		super(instance);
+	constructor(instance, log){
+		super(instance, log);
 	}
 	//重写 start 方法
 	async start(url, callback){

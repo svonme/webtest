@@ -1,8 +1,8 @@
-import console from "./console";
 
 const data = new Map();
 class viewSize{
-	constructor(){
+	constructor(log){
+		this.log = log;
 		this.setViewSize(960  , 768);
 		this.setViewSize(1024 , 768);
 		this.setViewSize(1280 , 960);
@@ -16,7 +16,12 @@ class viewSize{
 		return this.getViewSize(key);
 	}
 	getViewSize(key){
-		return data.get(key);
+		let size = data.get(key);
+		this.log({
+			"type" : "text",
+			"text" : `测试尺寸 : ${JSON.stringify(size)}`
+		});
+		return size;
 	}
 	setViewSize(width, height){
 		let key = data.size;

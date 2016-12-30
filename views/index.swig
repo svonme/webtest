@@ -18,16 +18,17 @@
 				<span>停止测试</span>
 	  		</button>
 	  	</div>
-	  	<div class="col-md-6 col-xs-6 col-lg-6 col-sm-12" id="message">
+	  	<div class="col-md-3 col-xs-3 col-lg-3" id="message">
 	  		<table class="table table-bordered table-hover">
 			  	<thead>
 			  		<tr>
-			  			<th>测试关键信息</th>
+			  			<th>待测试的页面</th>
 			  		</tr>
 			  	</thead>
 			</table>
+			<div class="list-group"></div>
 	  	</div>
-	  	<div class="col-md-6 col-xs-6 col-lg-6 col-sm-12" id="console">
+	  	<div class="col-md-9 col-xs-9 col-lg-9" id="console">
 	  		<table class="table table-bordered table-hover">
 			  	<thead>
 			  		<tr>

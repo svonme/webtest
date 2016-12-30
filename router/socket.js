@@ -1,32 +1,35 @@
 import { phantom } from "./phantom"
 
-class IO{
+class IO extends phantom{
 	constructor(socket, io){
+		super();
 		this.socket = socket;
 		this.io = io;
 
-		//接收查询数据事件
-	  	socket.on("get/data",  ()=>{
-	  		//向客户端推送消息
-		    this.getMessage({
-		    	type : "text",
-		    	text : "hello world"
-		    });
-		});
+		
 		//开始测试
 	  	socket.on("phantom/start",  (data) => {
-	  		setTimeout(()=>{
-	  			let ph = new phantom( message =>{
-	  				this.message(message);
-	  			});
-	  			ph.start(data);
-	  		}, 0);
+  			this.phStart(data).then(({page, router})=>{
+				this.socket.emit("router", router);
+			});
 	  		return true;
 		});
 
 		//开始测试
 	  	socket.on("phantom/stop", () => {
+	  		this.phStop().then(()=>{
+	  			this.getMessage({
+			    	type : "text",
+			    	text : "测试服务已经停止"
+			    });
+	  		});
 	  		return true;
+		});
+
+	  	// 监听日志输出
+		this.on('console',(message)=>{
+			// console.log(message);
+			this.message(message);
 		});
 	}
 	//重写 phantom 消息输出日志

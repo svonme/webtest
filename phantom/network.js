@@ -1,9 +1,8 @@
 import saveImage from "./saveImage";
-import console from "./console";
 
 class network extends saveImage{
-	constructor(page,option){
-		super(page);
+	constructor(page, log, option){
+		super(page, log);
 
 		let { stop } = option;
 		let res = [];
@@ -15,16 +14,14 @@ class network extends saveImage{
 		page.on("onResourceRequested", function(requestData) {
 	        res.push(requestData);
 	        list.push(requestData.id);
-	        // console.info('Requesting : ', requestData.id, requestData.url);
 	        let { id, url } = requestData;
-	        console.log({
+	        log({
                 "type" : "networt",
                 "id"   : id,
                 "url"  : url
             });
 	    });
 	    page.on("onResourceReceived", function(received) {
-	    	// console.log("Received : ",received.id, received.stage);
 	     //    if (received.stage === 'start') {
 		    // }
 		    // 有新的请求进来
@@ -33,7 +30,7 @@ class network extends saveImage{
 	        if (received.stage === 'end') {
 	        	success.push(received.id);
 	        	if(success.length == list.length){
-	        		console.log({
+	        		log({
 		                "type" : "text",
 		                "text" : "received ok : 即将调用回调函数"
 		            });
@@ -62,7 +59,7 @@ class network extends saveImage{
 	        		stop.call(page, res, "next");
 	        		break;
                 default:
-                	console.log({
+                	log({
 		                "type" : "text",
 		                "text" : "页面控制台输入内容 : " + (typeof msg == "object" ? JSON.stringify(msg) : msg)
 		            });

@@ -1,4 +1,3 @@
-import console from "./console";
 import saveImage from "./saveImage";
 
 class capture extends saveImage{

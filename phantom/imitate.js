@@ -1,10 +1,9 @@
 import viewSize from "./viewsize";
 import netWork from "./network";
-import console from "./console";
 
 class imitate extends viewSize{
-	constructor(instance){
-		super();
+	constructor(instance, log){
+		super(log);
 		this.instance = instance;
 	}
 	async start(url, callback){
@@ -18,7 +17,7 @@ class imitate extends viewSize{
 		this.page = page;
 
 		//监听网络
-		new netWork(page, {
+		new netWork(page, this.log, {
 			//一段时间下网络停止加载，执行的回调函数
 			"stop" : callback
 		});

@@ -6,8 +6,15 @@ define(["$"],function($){
 			    this.getMessage(data);
 			});
 
-			//主动告诉服务器，我需要查询数据
-			socket.emit("get/data");
+			socket.on("router", (data)=>{
+				if(data){
+					let html = [];
+				  	data.forEach(function({ hash, text }, i){
+						html.push(`<a href="#/${hash}" class="list-group-item">${i+1} : ${text}</a>`);
+				  	});
+				  	$(".list-group","#message").html(html);	
+				}
+			});
 
 			$("#test-start").on("click",function(e){
 				$(this).prop("disabled", true);

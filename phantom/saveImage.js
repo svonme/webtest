@@ -1,10 +1,10 @@
 import Url from "url";
 import Query from "./query";
-import console from "./console";
 
 class saveImage{
-	constructor(page){
+	constructor(page, log){
 		this.page = page;
+		this.log = log;
 	}
 	async basis(){
 		let url = await this.page.property('url');
@@ -42,7 +42,7 @@ class saveImage{
             quality: 100      //质量
         };
 		await this.page.render(`./save/${path}`, option);
-		console.log({
+		this.log({
 			"type" : "text",
 			"text" : `image :  ${path}`
 		});
