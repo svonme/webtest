@@ -30,8 +30,10 @@ define(["$"],function($){
 			$("#test-stop").on("click", function(){
 				$(this).prop("disabled", true);
 				$("#test-start").prop("disabled", false);
-				//告诉服务器停止测试
-				socket.emit("phantom/stop");
+				// //告诉服务器停止测试
+				// socket.emit("phantom/stop");
+
+				socket.emit("page/save");
 			});
 		}
 		getMessage(data){
@@ -61,6 +63,9 @@ define(["$"],function($){
 					case "text":
 						let { text } = data;
 						$("table","#console").append("<tr><td>"+ text +"</td></tr>");
+						break;
+					case "pdf":
+						$("table","#console").append(`<tr><td><a href="/save/${data['url']}" target="_blank">${data['url']}</a></td></tr>`);
 						break;
 					default:
 						console.log(data);

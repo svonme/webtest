@@ -1,13 +1,9 @@
 import saveImage from "./saveImage";
 
 class capture extends saveImage{
-	constructor(page){
-		super(page);
-		return new Promise((callback)=>{
-			this.save().then(function(result){
-				callback(result);
-			});
-		});
+	constructor(page, log){
+		super(page, log);
+		return this.save();
 	}
 }
 

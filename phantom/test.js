@@ -49,8 +49,8 @@ function main(home, log, callback){
                         "type" : "text",
                         "text" : `登录成功 !!!!`
                     });
-                    const content = await page.property('content');
-                    return resolve({ content, res, page });
+                    const content = await this.property('content');
+                    return resolve({ content, res, page : this });
                 }
                 // // 
                 // switch(fill){
@@ -70,39 +70,39 @@ function main(home, log, callback){
                 //         resolve();
                 //         break;
                 //     default:
-                //         new capture(this).then(async function(info){
-                //             // curInfo = Object.assign({}, info);
-                //             let { pathname : moduleName } = info['router'];
-                //             log({
-                //                 "type" : "text",
-                //                 "text" : `准备加载模块 ${moduleName}, 开始测试该模块`
-                //             });
-                //             log({
-                //                 "type" : "info",
-                //                 "info" : info
-                //             });
-                //             log({
-                //                 "type" : "text",
-                //                 "text" : `image : ${info['image']}`
-                //             });
-                //             let filePath = `../modules/${moduleName}`;
-                //             fs.exists(filePath, function(exists){
-                //                 if(exists){
-                //                     const module = require(filePath);
-                //                     new module(info, page);
-                //                 }else{
-                //                     log({
-                //                         "type" : "text",
-                //                         "text" : `没有对应的测试脚本 ${moduleName}`
-                //                     });
-                //                     log({
-                //                         "type" : "text",
-                //                         "text" : "测试下一个页面"
-                //                     });
-                //                     task(page); //执行任务
-                //                 }
-                //             });
-                //         });
+                        // new capture(this).then(async function(info){
+                        //     // curInfo = Object.assign({}, info);
+                        //     let { pathname : moduleName } = info['router'];
+                        //     log({
+                        //         "type" : "text",
+                        //         "text" : `准备加载模块 ${moduleName}, 开始测试该模块`
+                        //     });
+                        //     log({
+                        //         "type" : "info",
+                        //         "info" : info
+                        //     });
+                        //     log({
+                        //         "type" : "text",
+                        //         "text" : `image : ${info['image']}`
+                        //     });
+                        //     let filePath = `../modules/${moduleName}`;
+                        //     fs.exists(filePath, function(exists){
+                        //         if(exists){
+                        //             const module = require(filePath);
+                        //             new module(info, page);
+                        //         }else{
+                        //             log({
+                        //                 "type" : "text",
+                        //                 "text" : `没有对应的测试脚本 ${moduleName}`
+                        //             });
+                        //             log({
+                        //                 "type" : "text",
+                        //                 "text" : "测试下一个页面"
+                        //             });
+                        //             task(page); //执行任务
+                        //         }
+                        //     });
+                        // });
                 //         break;
                 // }
             });
@@ -168,10 +168,19 @@ export class test{
             "text" : `开始测试 ： ${url}`
         });
         return new Promise((resolve)=>{
-            new main(url, this.log.bind(this), function(res){
+            new main(url, this.log.bind(this), (res)=>{
+                const { page } = res;
+                this.page = page;
                 resolve(res);
             });
         });
+    }
+    async phSave(){
+        if(this.page){
+            return new capture(this.page, this.log.bind(this));
+        }else{
+            return false;
+        }
     }
     async phStop(){
         await pool.drain();
