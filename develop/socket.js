@@ -1,16 +1,65 @@
+//时间格式化
+function Format(time, format) {
+	let date = new Date(time);
+	format || (format = 'yyyy-MM-dd hh:mm:ss');
+	var map = {
+	    "M": date.getMonth() + 1, //月
+	    "d": date.getDate(), //日
+	    "h": date.getHours(), //小时
+	    "m": date.getMinutes(), //分
+	    "s": date.getSeconds(), //秒
+	    "q": Math.floor((date.getMonth() + 3) / 3), //季度
+	    "S": date.getMilliseconds() //毫秒
+	};
+	format = format.replace(/([yMdhmsqS])+/g, function(all, t){
+	    var v = map[t];
+	    if(v !== undefined){
+	        if(all.length > 1){
+	            v = '0' + v;
+	            v = v.substr(v.length-2);
+	        }
+	        return v;
+	    }
+	    else if(t === 'y'){
+	        return (date.getFullYear() + '').substr(4 - all.length);
+	    }
+	    return all;
+	});
+	return format;
+}
+
 define(["$"],function($){
 	class Socket{
 		constructor(socket){
 			//定义接收服务器的消息推送
-			socket.on("get/message", (data)=>{
-			    this.getMessage(data);
+			socket.on("message/text", data =>{
+				$(".list-group","#console").append(`<li class="list-group-item">network : ${data}</li>`);
+			});
+			socket.on("message/info", data =>{
+				// $("table","#console").append("<tr><td>"+ data +"</td></tr>");
+				console.log(data);
+			});
+			socket.on("message/network", data =>{
+				let { url } = data;
+				$(".list-group","#console").append(`<li class="list-group-item">network : ${url}</li>`);
 			});
 
-			socket.on("router", (data)=>{
+			//有网络资源开始请求
+			socket.on("message/loadStarted", data =>{
+				let { url, time } = data;
+				$(".list-group","#console").append(`<li class="list-group-item">开始请求 : ${Format(time)} - ${time}</li>`);
+			});
+			//网络资源停止请求
+			socket.on("message/loadFinished", data =>{
+				let { url, time } = data;
+				$(".list-group","#console").append(`<li class="list-group-item">停止请求 : ${Format(time)} - ${time}</li>`);
+			});
+
+			socket.on("router", data => {
 				if(data){
 					let html = [];
 				  	data.forEach(function({ hash, text }, i){
-						html.push(`<a href="#/${hash}" class="list-group-item">${i+1} : ${text}</a>`);
+						html.push(`<a href="#/${hash}" class="list-group-item">${i + 1} : ${text}</a>`);
 				  	});
 				  	$(".list-group","#message").html(html);	
 				}
@@ -23,7 +72,7 @@ define(["$"],function($){
 				//告诉服务器开始测试
 				socket.emit("phantom/start",{
 					//测试地址
-					"url" : "http://192.168.1.227:8080/index_82c7ee8.html"
+					"url" : $("#url").val()
 				});
 			});
 
@@ -35,44 +84,6 @@ define(["$"],function($){
 
 				socket.emit("page/save");
 			});
-		}
-		getMessage(data){
-			try{
-				if(typeof data == "string"){
-					data = JSON.parse(data);
-				}
-			} catch(e){
-				// console.error(e);
-				// $("table","#message").append("<tr><td>"+ data +"</td></tr>");
-				let value = data.replace(/}(.*){/,"}#split#{").split(/#split#/);
-				value.forEach(item => this.getMessage(item));
-				return false;
-			}
-			let { type = "" } = data;
-			if(data){
-				switch(type){
-					case "info":
-						let { info } = data;
-						let { image, url } = info;
-						let html = `<p>url : ${url}</p><p><a href="/save/${image}" target="_blank">${image}</a></p>`;
-						$("table","#message").append("<tr><td>"+ html +"</td></tr>");
-						break;
-					case "networt":
-						$("table","#console").append("<tr><td>"+ data['id'] + " : " + data['url'] +"</td></tr>");
-						break;
-					case "text":
-						let { text } = data;
-						$("table","#console").append("<tr><td>"+ text +"</td></tr>");
-						break;
-					case "pdf":
-						$("table","#console").append(`<tr><td><a href="/save/${data['url']}" target="_blank">${data['url']}</a></td></tr>`);
-						break;
-					default:
-						console.log(data);
-						break;
-				}
-			}
-			
 		}
 	}
 	return Socket;

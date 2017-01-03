@@ -17,7 +17,7 @@ class _Login extends imitate{
 	login(){
 		document.querySelector("#username").value = "qianxun";
         document.querySelector("#password").value = "kuandd2016";
-        window['console']['log']("开始模拟登录");
+       console.log("开始模拟登录");
         var login = new Login('#username' , '#password' , '#loginSubmit');
         //模拟登陆
         login.getData();

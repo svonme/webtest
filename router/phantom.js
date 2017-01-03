@@ -43,9 +43,15 @@ class phantom extends test{
 	constructor(){
 		super();
 	}
+	/**
+	 * [on description]
+	 * @param  {[type]} key  [text, info, network]
+	 * @param  {[type]} fun  [description]
+	 * @return {[type]}      [description]
+	 */
 	on(key, fun){
-		if(key && fun && this[key]){
-			this[key].push(fun);
+		if(key && fun && this.console[key]){
+			this.console[key].push(fun);
 		}
 	}
 }

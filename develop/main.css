@@ -1,0 +1,19 @@
+.webtest{
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	overflow-x: hidden; 
+}
+.webtest .head{
+	padding: 13px;
+}
+.webtest .wrap{
+	position: absolute;
+	top: 150px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: auto;
+}

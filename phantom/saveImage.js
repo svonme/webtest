@@ -9,7 +9,7 @@ class saveImage{
 	async basis(){
 		let url = await this.page.property('url');
 		//当前页面 url 值
-		let location = Url.parse(url);
+		let location = Url.parse(url, true);
 		let size = await this.page.property('viewportSize');
 		//拿到 hash 部分
 		let { hash = "" } = location;
@@ -42,10 +42,7 @@ class saveImage{
             quality: 100      //质量
         };
 		await this.page.render(`./save/${path}`, option);
-		this.log({
-			"type" : "text",
-			"text" : `image :  ${path}`
-		});
+		this.log.text(`image :  ${path}`);
 
 		return Object.assign({
 			"time"     : time,
@@ -56,14 +53,15 @@ class saveImage{
 	}
 	async save(){
 		return new Promise((callback) => {
-			this.basis().then( info => {
-				//延迟一秒抓图，保证页面内容渲染完毕
-				setTimeout(async () => {
-					//执行继承的保存图片方法
-					let result = await this.render(info);
-					callback(result);
-				}, 1000);
-			});
+			console.log(1);
+			// this.basis().then( info => {
+			// 	//延迟一秒抓图，保证页面内容渲染完毕
+			// 	setTimeout(async () => {
+			// 		//执行继承的保存图片方法
+			// 		let result = await this.render(info);
+			// 		callback(result);
+			// 	}, 1000);
+			// });
 		});
 	}
 }

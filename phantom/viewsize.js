@@ -17,10 +17,7 @@ class viewSize{
 	}
 	getViewSize(key){
 		let size = data.get(key);
-		this.log({
-			"type" : "text",
-			"text" : `测试尺寸 : ${JSON.stringify(size)}`
-		});
+		this.log.text(`测试尺寸 : ${JSON.stringify(size)}`);
 		return size;
 	}
 	setViewSize(width, height){

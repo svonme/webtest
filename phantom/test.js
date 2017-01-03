@@ -45,10 +45,7 @@ function main(home, log, callback){
             const page = await login.start(home, async function(res, fill){
                 if(!loginStatus){
                     loginStatus = true; //标识登录成功
-                    log({
-                        "type" : "text",
-                        "text" : `登录成功 !!!!`
-                    });
+                    log.text("登录成功 !!!!");
                     const content = await this.property('content');
                     return resolve({ content, res, page : this });
                 }
@@ -114,10 +111,7 @@ function main(home, log, callback){
             // });
         });
     }).then(function({ content, res, page }){
-        log({
-            "type" : "text",
-            "text" : "分析页面数据 检索路由"
-        });
+        log.text("分析页面数据 检索路由");
         let $ = cheerio.load(content);
         let $menu = $(".side-menu","#sidebar-menu");
         let $as = $("a",$menu);
@@ -145,30 +139,28 @@ function main(home, log, callback){
     });
 }
 
-// (function(){
-// 	// 获取需要测试的地址
-// 	let [,, url ] = process.argv;
-//     console.log({
-//         "type" : "text",
-//         "text" : `开始测试 ： ${url}`
-//     });
-// 	main(url);
-// })();
-
 export class test{
     constructor(){
-        this.console = [];
-    }
-    log(...args){
-        this.console.forEach(item => item(...args));
-    }
-    async phStart({ url }){
-        this.log({
-            "type" : "text",
-            "text" : `开始测试 ： ${url}`
+        this.console = {
+            text     : [],
+            info    : [],
+            network : [],
+            loadStarted : [],
+            loadFinished : [],
+        };
+        const console = this.console;
+        this.log = {};
+        Object.keys(console).forEach(key => {
+            this.log[key] = function(...args){
+                console[key].forEach( item => item(...args));
+            };
         });
+    }
+    
+    async phStart({ url }){
+        this.log.text(`开始测试 ： ${url}`);
         return new Promise((resolve)=>{
-            new main(url, this.log.bind(this), (res)=>{
+            new main(url, this.log, (res)=>{
                 const { page } = res;
                 this.page = page;
                 resolve(res);
@@ -177,7 +169,7 @@ export class test{
     }
     async phSave(){
         if(this.page){
-            return new capture(this.page, this.log.bind(this));
+            return new capture(this.page, this.log);
         }else{
             return false;
         }
