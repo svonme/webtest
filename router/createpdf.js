@@ -31,43 +31,41 @@ function Format(time, format) {
 	return format;
 }
 
-class createpdf{
+class createpdf {
+	// let logs = {
+	// 	"text" : [],          //消息日志
+	// 	"info" : [],          //重要的测试日志
+	// 	"network"      : [],  //网络资源
+	// 	"loadStarted"  : [],  //请求开始时间
+	// 	"loadFinished" : []   //请求结束时间
+	// };
 	constructor(info, logs){
 		let { viewportSize, pathname, router, location, url, image, time } = info;
+
+		let { 
+			loadStarted,  // 请求开始时间
+			loadFinished, // 请求结束时间
+			network,      // 所有网络资源
+			text,         // 所有消息日志
+			info : infoMessage         // 重要的测试日志
+		} = logs; 
+
 		let basis = [
-			`当前时间 : ${Format(time)}`,
-			`url : ${url}`,
-			`快照 : ${image}`,
-			`location : ${JSON.stringify(location)}`,
-			`router : ${JSON.stringify(router)}`
+			`报告时间 : ${Format(time)}`,
+			`测试地址 : ${url}`,
+			`快照名称 : ${image}`,
+			`测试模块 : ${router['pathname']}`,
+			`请求开始时间 : ${Format(loadStarted[0])}`,
+			`请求结束时间 : ${Format(loadFinished[0])}`,
+			`请求总过用时 : ${(loadFinished[0] - loadStarted[0]) / 1000}秒`,
 		];
 		return new Promise(function(resolve){
 			let src = image.replace(/jpg$/,"pdf");
 			const doc = new pdfkit();
 			doc.pipe(fs.createWriteStream(`./save/${src}`));
-			let text = logs.map(item => {
-				let str = "";
-				let { type = "" } = item
-				switch(type){
-					case "networt":
-						let url = item["url"];
-						str += `newwork : ${url}`;
-						break;
-					case "text":
-						let { text } = item;
-						str += `log : ${text}`
-						break;
-					default:
-						// console.log(data);
-						break;
-				}
-				return str;
-			});
-
-			// doc.font('fonts/SourceCodePro-Regular.ttf')
 			doc.font('fonts/msyh.ttf')
 				.fontSize(14)
-				.text(basis.concat(text).join("\n\n"), 50, 50 );
+				.text(basis.join("\n\n"), 50, 50 );
 			
 			doc.addPage()
 				.fontSize(14)
@@ -76,6 +74,27 @@ class createpdf{
 			   		align: 'center',
 			   		valign: 'center'
 			   	});
+
+			const page = doc.addPage();
+			page.fontSize(14);
+			// 所有网络资源
+			network.forEach(function(data){
+				let { url, startTime, endTime } = data;
+				page.text([
+					`网络资源 : ${url}`,
+					`           开始时间 : ${Format(startTime)}`,
+					`           结束时间 : ${Format(endTime)}`,
+					`           请求用时 : ${(endTime - startTime) / 1000}秒\n\n`
+				].join("\n"));
+			});
+			// 所有消息日志
+			text.forEach(function(data){
+				page.text(`消息日志 : ${data}\n\n`);
+			});
+			// 重要的测试日志
+			infoMessage.forEach(function(data){
+				page.text(`消息日志 : ${data}\n\n`);
+			});
 			doc.end();
 			resolve(src);
 		});

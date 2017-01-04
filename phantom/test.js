@@ -6,6 +6,7 @@ import capture from "./capture";
 
 import cheerio from 'cheerio';
 import fs from "fs";
+import path from "path";
 
 let routers = [];
 
@@ -16,25 +17,7 @@ const pool = createPhantomPool({
     idleTimeoutMillis: 30000, // 空闲时间
 });
 
-// function task(page){
-//     let url = routers.shift();
-//     if(url){
-//         console.log({
-//             "type" : "text",
-//             "text" : `开始测试 url ${url}`
-//         });
-//         page.evaluate(function(key, r){
-//             window['console']['log']("key : ", key, "random : ", r);
-//             window['console']['log']("准备切换页面");
-//             window.location.hash = "#/" + key + "?random=" + r;
-//         },url, parseInt(Math.random() * 10000, 10));
-//     } else {
-//         (async function(){
-//             await pool.drain();
-//             await pool.clear();
-//         })();
-//     }
-// }
+
 
 function main(home, log, callback){
     //入口地址
@@ -49,69 +32,10 @@ function main(home, log, callback){
                     const content = await this.property('content');
                     return resolve({ content, res, page : this });
                 }
-                // // 
-                // switch(fill){
-                //     case "next":
-                //         log({
-                //             "type" : "text",
-                //             "text" : "测试下一个页面"
-                //         });
-                //         task(page); //执行任务
-                //         break;
-                //     case "stop":
-                //         //当前模块测试完毕
-                //         log({
-                //             "type" : "text",
-                //             "text" : "页面测试完毕"
-                //         });
-                //         resolve();
-                //         break;
-                //     default:
-                        // new capture(this).then(async function(info){
-                        //     // curInfo = Object.assign({}, info);
-                        //     let { pathname : moduleName } = info['router'];
-                        //     log({
-                        //         "type" : "text",
-                        //         "text" : `准备加载模块 ${moduleName}, 开始测试该模块`
-                        //     });
-                        //     log({
-                        //         "type" : "info",
-                        //         "info" : info
-                        //     });
-                        //     log({
-                        //         "type" : "text",
-                        //         "text" : `image : ${info['image']}`
-                        //     });
-                        //     let filePath = `../modules/${moduleName}`;
-                        //     fs.exists(filePath, function(exists){
-                        //         if(exists){
-                        //             const module = require(filePath);
-                        //             new module(info, page);
-                        //         }else{
-                        //             log({
-                        //                 "type" : "text",
-                        //                 "text" : `没有对应的测试脚本 ${moduleName}`
-                        //             });
-                        //             log({
-                        //                 "type" : "text",
-                        //                 "text" : "测试下一个页面"
-                        //             });
-                        //             task(page); //执行任务
-                        //         }
-                        //     });
-                        // });
-                //         break;
-                // }
             });
-            // page.property('url').then(function(url){
-            //     log({
-            //         "type" : "text",
-            //         "text" : `当前 url : ${url}`
-            //     });
-            // });
         });
     }).then(function({ content, res, page }){
-        log.text("分析页面数据 检索路由");
+        log.text("分析页面数据 开始抓取模块路由数据");
         let $ = cheerio.load(content);
         let $menu = $(".side-menu","#sidebar-menu");
         let $as = $("a",$menu);
@@ -125,7 +49,7 @@ function main(home, log, callback){
                 });
             }
         });
-        // task(page); //执行任务
+        log.text("抓取完毕，即将输出到页面中，提供给模块测试");
         return { 
             "page" : page,
             "router" : routers
@@ -148,11 +72,11 @@ export class test{
             loadStarted : [],
             loadFinished : [],
         };
-        const console = this.console;
+        const _console = this.console;
         this.log = {};
-        Object.keys(console).forEach(key => {
+        Object.keys(_console).forEach(key => {
             this.log[key] = function(...args){
-                console[key].forEach( item => item(...args));
+                _console[key].forEach( item => item(...args));
             };
         });
     }
@@ -179,7 +103,51 @@ export class test{
         await pool.clear();
         return true;
     }
-    
+    async phModuleChange(module){
+        const that = this;
+        this.log.text(`测试模块 ： ${module}`);
+        if(this.page){
+            let filePath = path.join(__dirname,`modules/${module}`);
+            this.page.evaluate(function(key, r){
+                // 通过修改 hash 值来切换路由
+                // 添加一个随机数，避免页面不重新加载资源
+                window.location.hash = "#/" + key + "?random=" + r;
+            }, module, parseInt(Math.random() * 10000, 10));
+
+            fs.exists(filePath, function(exists){
+                if(exists){
+                    const module = require(filePath);
+                    // new module(info, page);
+                }else{
+                    that.log.info(`模块 ${module} 没有对应的测试脚本, 无法单元测试，目前只能保存快照`);
+                }
+            });
+        }else{
+            return false;
+        }
+        
+    }    
 }
 
 
+
+
+// function task(page){
+//     let url = routers.shift();
+//     if(url){
+//         console.log({
+//             "type" : "text",
+//             "text" : `开始测试 url ${url}`
+//         });
+//         page.evaluate(function(key, r){
+//             window['console']['log']("key : ", key, "random : ", r);
+//             window['console']['log']("准备切换页面");
+//             window.location.hash = "#/" + key + "?random=" + r;
+//         },url, parseInt(Math.random() * 10000, 10));
+//     } else {
+//         (async function(){
+//             await pool.drain();
+//             await pool.clear();
+//         })();
+//     }
+// }

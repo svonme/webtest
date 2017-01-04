@@ -53,15 +53,14 @@ class saveImage{
 	}
 	async save(){
 		return new Promise((callback) => {
-			console.log(1);
-			// this.basis().then( info => {
-			// 	//延迟一秒抓图，保证页面内容渲染完毕
-			// 	setTimeout(async () => {
-			// 		//执行继承的保存图片方法
-			// 		let result = await this.render(info);
-			// 		callback(result);
-			// 	}, 1000);
-			// });
+			this.basis().then( info => {
+				//延迟一秒抓图，保证页面内容渲染完毕
+				setTimeout(async () => {
+					//执行继承的保存图片方法
+					let result = await this.render(info);
+					callback(result);
+				}, 1000);
+			});
 		});
 	}
 }

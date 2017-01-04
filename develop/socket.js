@@ -29,30 +29,61 @@ function Format(time, format) {
 }
 
 define(["$"],function($){
+	
+	function scrollTop(){
+		setTimeout(function(){
+			let top = $(".list-group", "#console").height();
+			$("#console").stop().animate({
+				"scrollTop":  top + "px"
+			});
+		}, 0);
+	}
 	class Socket{
 		constructor(socket){
 			//定义接收服务器的消息推送
 			socket.on("message/text", data =>{
-				$(".list-group","#console").append(`<li class="list-group-item">network : ${data}</li>`);
+				$(".list-group","#console").append(`<li class="list-group-item">消息日志 : ${data}</li>`);
+				scrollTop();
 			});
 			socket.on("message/info", data =>{
-				// $("table","#console").append("<tr><td>"+ data +"</td></tr>");
-				console.log(data);
+				$(".list-group","#console").append(`<li class="list-group-item">消息日志 : ${data}</li>`);
+				scrollTop();
 			});
 			socket.on("message/network", data =>{
-				let { url } = data;
-				$(".list-group","#console").append(`<li class="list-group-item">network : ${url}</li>`);
-			});
+				let { url, startTime, endTime } = data;
+				$(".list-group","#console").append(`<li class="list-group-item">
+						<p>网络资源 : ${url}</p>
+						<p>开始时间 : ${Format(startTime)}</p>
+						<p>结束时间 : ${Format(endTime)}</p>
+						<p>请求用时 : ${(endTime - startTime) / 1000}秒</p>
+					</li>`);
 
+				scrollTop();
+
+			});
+			socket.on("message/error", data =>{
+				alert(data);
+			});
+			let loadStartedTime, loadFinishedTime;
 			//有网络资源开始请求
 			socket.on("message/loadStarted", data =>{
 				let { url, time } = data;
-				$(".list-group","#console").append(`<li class="list-group-item">开始请求 : ${Format(time)} - ${time}</li>`);
+				loadStartedTime = time;
+				$(".list-group","#console").append(`<li class="list-group-item">
+					<p>开始请求 : ${Format(time)} - ${time}</p>
+				</li>`);
+				scrollTop();
 			});
 			//网络资源停止请求
 			socket.on("message/loadFinished", data =>{
 				let { url, time } = data;
-				$(".list-group","#console").append(`<li class="list-group-item">停止请求 : ${Format(time)} - ${time}</li>`);
+				loadFinishedTime = time;
+				$(".list-group","#console").append(`<li class="list-group-item">
+					<p>停止请求 : ${Format(time)} - ${time}</p>
+					<p>总过用时 : ${(loadFinishedTime - loadStartedTime) / 1000}秒</p>
+				</li>`);
+
+				scrollTop();
 			});
 
 			socket.on("router", data => {
@@ -76,13 +107,33 @@ define(["$"],function($){
 				});
 			});
 
-			$("#test-stop").on("click", function(){
-				$(this).prop("disabled", true);
-				$("#test-start").prop("disabled", false);
-				// //告诉服务器停止测试
-				// socket.emit("phantom/stop");
 
-				socket.emit("page/save");
+			let confirmStatus = false;
+			$("#test-stop").on("click", function(){
+				confirmStatus = confirm("是否确认停止");
+				if(confirmStatus){
+					$(this).prop("disabled", true);
+					$("#test-start").prop("disabled", false);
+					//告诉服务器停止测试
+					socket.emit("phantom/stop");
+				}
+			});
+
+			$("#test-save").on("click",function(e){
+				if(confirmStatus){
+					alert("你已经停止了测试服务，无法进行保存");
+				}else{
+					//告诉服务器保存当前测试数据
+					socket.emit("page/save");
+				}
+			});
+
+
+			//模块测试
+			$(window).on("hashchange", function(){
+				let url = window.location.hash;
+				let module = url.replace(/^#+\//i,""); //清除开头的 # 字符
+				socket.emit("module/change", module);
 			});
 		}
 	}

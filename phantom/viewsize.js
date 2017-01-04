@@ -17,7 +17,7 @@ class viewSize{
 	}
 	getViewSize(key){
 		let size = data.get(key);
-		this.log.text(`测试尺寸 : ${JSON.stringify(size)}`);
+		this.log.text(`模拟浏览器尺寸大小 : 宽=${size["width"]}px 高=${size["height"]}px`);
 		return size;
 	}
 	setViewSize(width, height){
