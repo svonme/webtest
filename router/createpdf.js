@@ -39,7 +39,7 @@ class createpdf {
 	// 	"loadStarted"  : [],  //请求开始时间
 	// 	"loadFinished" : []   //请求结束时间
 	// };
-	constructor(info, logs){
+	constructor(info, logs, routerData){
 		let { viewportSize, pathname, router, location, url, image, time } = info;
 
 		let { 
@@ -49,12 +49,22 @@ class createpdf {
 			text,         // 所有消息日志
 			info : infoMessage         // 重要的测试日志
 		} = logs; 
-
+		let routeritem = {
+			text : "",
+			hash : router['pathname']
+		};
+		for(let i = 0 , len = routerData.length; i < len; i++){
+			let item = routerData[i];
+			if(item['hash'] == router['pathname']){
+				Object.assign(routeritem, item);
+				break;
+			}
+		}
 		let basis = [
 			`报告时间 : ${Format(time)}`,
 			`测试地址 : ${url}`,
 			`快照名称 : ${image}`,
-			`测试模块 : ${router['pathname']}`,
+			`测试模块 : ${routeritem['text']} / ${routeritem['hash']}`,
 			`请求开始时间 : ${Format(loadStarted[0])}`,
 			`请求结束时间 : ${Format(loadFinished[0])}`,
 			`请求总过用时 : ${(loadFinished[0] - loadStarted[0]) / 1000}秒`,
@@ -89,14 +99,15 @@ class createpdf {
 			});
 			// 所有消息日志
 			text.forEach(function(data){
-				page.text(`消息日志 : ${data}\n\n`);
+				if(data instanceof Object){
+					data = JSON.stringify(data);
+				}
+				page.text(`消息 : ${data}\n\n`);
 			});
-			// 重要的测试日志
-			infoMessage.forEach(function(data){
-				page.text(`消息日志 : ${data}\n\n`);
-			});
-			doc.end();
-			resolve(src);
+			setTimeout(function(){
+				doc.end();
+				resolve(src);
+			}, 0);
 		});
 	}
 }

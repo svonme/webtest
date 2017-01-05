@@ -42,7 +42,10 @@ class saveImage{
             quality: 100      //质量
         };
 		await this.page.render(`./save/${path}`, option);
-		this.log.text(`image :  ${path}`);
+		this.log.info({
+			"type" : "image",
+			"url"  : path
+		});
 
 		return Object.assign({
 			"time"     : time,

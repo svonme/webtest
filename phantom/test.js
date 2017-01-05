@@ -66,8 +66,9 @@ function main(home, log, callback){
 export class test{
     constructor(){
         this.console = {
-            text     : [],
+            text    : [],
             info    : [],
+            error   : [],
             network : [],
             loadStarted : [],
             loadFinished : [],
@@ -82,7 +83,7 @@ export class test{
     }
     
     async phStart({ url }){
-        this.log.text(`开始测试 ： ${url}`);
+        this.log.info(`开始测试 ： ${url}`);
         return new Promise((resolve)=>{
             new main(url, this.log, (res)=>{
                 const { page } = res;

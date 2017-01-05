@@ -42,35 +42,57 @@ define(["$"],function($){
 		constructor(socket){
 			//定义接收服务器的消息推送
 			socket.on("message/text", data =>{
-				$(".list-group","#console").append(`<li class="list-group-item">消息日志 : ${data}</li>`);
+				if(data instanceof Object){
+					data = JSON.stringify(data);	
+				}
+				$(".list-group","#console").append(`<li class="list-group-item text">消息 : ${data}</li>`);
 				scrollTop();
 			});
 			socket.on("message/info", data =>{
-				$(".list-group","#console").append(`<li class="list-group-item">消息日志 : ${data}</li>`);
+				if(data instanceof Object){
+					switch(data.type){
+						case "pdf":
+						case "image":
+							let { url } = data;
+							$(".list-group","#console").append(`<li class="list-group-item info">
+								文件报告 : <a href="/save/${url}" target="_blank">${url}</a>
+							</li>`);
+							return false;
+							break;
+						default:
+							data = JSON.stringify(data);
+							break;
+					}
+				}
+				$(".list-group","#console").append(`<li class="list-group-item info">${data}</li>`);
+				
 				scrollTop();
 			});
 			socket.on("message/network", data =>{
 				let { url, startTime, endTime } = data;
-				$(".list-group","#console").append(`<li class="list-group-item">
-						<p>网络资源 : ${url}</p>
-						<p>开始时间 : ${Format(startTime)}</p>
-						<p>结束时间 : ${Format(endTime)}</p>
-						<p>请求用时 : ${(endTime - startTime) / 1000}秒</p>
-					</li>`);
-
+				$(".list-group","#console").append(`<li class="list-group-item network">
+					<p>静态资源 : ${url}</p>
+					<p>开始时间 : ${Format(startTime)}</p>
+					<p>结束时间 : ${Format(endTime)}</p>
+					<p>请求用时 : ${(endTime - startTime) / 1000}秒</p>
+				</li>`);
 				scrollTop();
-
 			});
 			socket.on("message/error", data =>{
-				alert(data);
+				if(data instanceof Object){
+					data = JSON.stringify(data);
+				}
+				$(".list-group","#console").append(`<li class="list-group-item error">错误 : ${data}</li>`);
+				scrollTop();
 			});
 			let loadStartedTime, loadFinishedTime;
 			//有网络资源开始请求
 			socket.on("message/loadStarted", data =>{
 				let { url, time } = data;
 				loadStartedTime = time;
-				$(".list-group","#console").append(`<li class="list-group-item">
+				$(".list-group","#console").append(`<li class="list-group-item loading">
 					<p>开始请求 : ${Format(time)} - ${time}</p>
+					<p>当前 url : ${url}</p>
 				</li>`);
 				scrollTop();
 			});
@@ -78,8 +100,9 @@ define(["$"],function($){
 			socket.on("message/loadFinished", data =>{
 				let { url, time } = data;
 				loadFinishedTime = time;
-				$(".list-group","#console").append(`<li class="list-group-item">
+				$(".list-group","#console").append(`<li class="list-group-item loading">
 					<p>停止请求 : ${Format(time)} - ${time}</p>
+					<p>当前 url : ${url}</p>
 					<p>总过用时 : ${(loadFinishedTime - loadStartedTime) / 1000}秒</p>
 				</li>`);
 

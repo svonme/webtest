@@ -22,3 +22,19 @@
 	height: 100%;
 	overflow-y: scroll; 
 }
+
+#console .text{
+	color: #428bca;
+}
+#console .info{
+	color: #5cb85c;
+}
+#console .network{
+	color: #5bc0de;
+}
+#console .loading{
+	color: #f0ad4e;
+}
+#console .error{
+	color: #d9534f;
+}
