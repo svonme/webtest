@@ -6,26 +6,26 @@ class imitate extends viewSize{
 		super(log);
 		this.instance = instance;
 	}
-	async start(url, callback){
-		await this.open(url, callback);
-		return this.page;
+	async start(url){
+		const page = await this.open(url);
+		return page;
 	}
-	async open(url, callback){
+	async open(url){
 		//构造网页
 		const page = await this.instance.createPage();
 		//当前网页对象
 		this.page = page;
-
 		//监听网络
-		new netWork(page, this.log, {
-			//一段时间下网络停止加载，执行的回调函数
-			"stop" : callback
-		});
+		new netWork(page, this.log);
 		//随机获取一个尺寸
 	    let size = this.randomViewSize(); 
 	    await page.property('viewportSize', size); 
 	    //打开网页
-	    return await page.open(url);
+	    let status = await page.open(url);
+	    if(status == "success"){
+	    	return page;
+	    }
+        throw "致命错误，打开网页出现异常"
 	}
 }
 

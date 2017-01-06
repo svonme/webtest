@@ -40,7 +40,8 @@
     "nodemon": "^1.11.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/nodemon ./bin/run.js"
+    "test": "./node_modules/.bin/nodemon ./bin/run.js",
+    "ph" : "./node_modules/.bin/nodemon ./bin/test.js"
   },
   "author": "",
   "license": "ISC"

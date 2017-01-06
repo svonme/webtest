@@ -56,17 +56,49 @@ class IO extends phantom{
 			logs[curModule].loadFinished.push(time);
 		});
 
+		this.on('stop', (url, res, page) => {
+			this.socket.emit("phantom/test/stop", url);
+		});
+		this.on('save', () => {
+			this.messageSave();
+		});
+		this.on('next', () => {
+			this.getInfo().then( info =>{
+				let { router } = info ;
+				var { pathname } = router;
+				this.messageText(`继续测试 ${pathname} 模块`);
+				this.phModuleChange(pathname);
+			});
+		});
+
 		let routerData = [];
 
 		//开始测试
 	  	socket.on("phantom/start",  (data) => {
 	  		createLog();
-  			this.phStart(data).then(({page, router})=>{
-				this.socket.emit("router", router);
-				routerData.push(...router);
+  			this.phStart(data).then( status =>{
+  				if(status){
+  					this.messageInfo("页面正常打开");
+  				}else{
+  					this.error("致命错误，网页打开失败");
+  				}
 			});
 	  		return true;
 		});
+		//用户登录
+		socket.on("phantom/test/login", ({username, password})=>{
+			this.phLogin(username, password);
+		});
+		socket.on("phantom/getrouter", ()=>{
+			this.phGetRouter().then( router =>{
+				if(router){
+					this.socket.emit("router", router);
+					routerData.push(...router);
+				}
+			});
+		});
+
+			
 
 		//停止测试
 	  	socket.on("phantom/stop", () => {
@@ -77,7 +109,7 @@ class IO extends phantom{
 		});
 		//准备保存
 	  	socket.on("page/save", () => {
-			this.messageText("准备快照与把相信信息输出到 pdf 文件");
+			this.messageText("准备快照并把测试信息保存到 pdf 文件");
 	  		this.phSave().then( info => {
 	  			if(info === false){
 	  				this.messageError("测试出问题了，上一次的未停止，请稍候再试");
@@ -97,6 +129,20 @@ class IO extends phantom{
 			createLog(module);
 			this.phModuleChange(module);
 		});
+
+		socket.on("phantom/list/test", list =>{
+			const that = this;
+			function app(i){
+				let key = list[i];
+				if(key){
+					that.phModuleChange(key);
+				}
+			}
+			app(0);
+		});
+	}
+	messageSave(){
+		this.socket.emit("message/save");
 	}
 	messageError(message){
 		this.socket.emit("message/error", message);

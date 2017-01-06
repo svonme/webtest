@@ -5,22 +5,12 @@ class _Login extends imitate{
 		super(instance, log);
 	}
 	//重写 start 方法
-	async start(url, callback){
-		let status = await this.open(url, callback);
-		if(status == "success"){
-	    	//注入数据，模拟登录
-	    	this.page.evaluate(this.login);
-	    }
-	    return this.page;
-	}
-	//页面加载完成后执行在页面中的代码片段
-	login(){
-		document.querySelector("#username").value = "qianxun";
-        document.querySelector("#password").value = "kuandd2016";
-       console.log("开始模拟登录");
-        var login = new Login('#username' , '#password' , '#loginSubmit');
-        //模拟登陆
-        login.getData();
+	async start(url){
+		// await page.includeJs("http://cdn.svon.org/js/promise.min.js");
+//      	await page.includeJs("http://cdn.svon.org/libs/jquery.min.js");
+    	//注入数据，模拟登录
+    	// this.page.evaluate(this.login);
+	    return await this.open(url);
 	}
 }
 

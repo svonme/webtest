@@ -1,8 +1,7 @@
 import saveImage from "./saveImage";
 
 class network{
-	constructor(page, log, option){
-		let { stop } = option;
+	constructor(page, log){
 		let res = {};
 		let list = [];
 		let success = [];
@@ -18,6 +17,13 @@ class network{
 		async function onLoadFinished(time = new Date().getTime(), url){
 			url || (url = await page.property('url'));
 	    	log.loadFinished(time, url);
+		}
+		async function testStop(){
+			let url = await page.property('url');
+			log.stop(url, res, page);
+		}
+		function testNext(){
+			log.next();
 		}
 		
 		//网络请求开始
@@ -56,7 +62,7 @@ class network{
 	        		delayId = setTimeout(function(){
 	        			onLoadFinished(time);
 	        			//执行回调函数
-	        			stop.call(page, res, "finished"); //页面加载完
+	        			testStop();
 	        		},2000);
 	        	}
 	     	}
@@ -73,6 +79,7 @@ class network{
 	    
 	    //当发生 url 变化时 触发一次，表示开始请求了
 	    page.on('onUrlChanged',async function(url){
+	    	log.info(`Url change : ${url}`);
 	    	onLoadStarted(void 0, url); //进来时默认调用一次，表示网络开始加载
 	    });
 	    
@@ -81,13 +88,23 @@ class network{
 	    page.on('onConsoleMessage', function(msg, lineNum, sourceId){
 	    	//约定内容
 	    	switch(msg){
+	    		//执行下一个测试
 	    		case "stop":
-                    //执行回调函数
-	        		stop.call(page, res, "stop");
-                    break;
+	    			log.text("测试用执行完毕，请测试其它模块");
+	    			setTimeout(function(){
+	    				testStop();
+	    			}, 2000);
+	    			break;
+	    		//继续测试当前模块
                 case "next":
-                	//执行下一个测试
-	        		stop.call(page, res, "next");
+                	setTimeout(function(){
+	    				testNext();
+	    			}, 2000);
+	        		break;
+	        	//保存快照
+	        	case "save":
+	        		log.text("测试用列中执行了保存当前测试报告的命令");
+	        		log.save(); //以消息的机制通知程序保存快照
 	        		break;
                 default:
                 	if(msg instanceof Object){

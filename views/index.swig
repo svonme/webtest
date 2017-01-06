@@ -16,7 +16,7 @@
 		  		<form class="form-horizontal pull-left" role="form">
 				  	<div class="form-group" style="width: 400px; margin-right: 50px; margin-left: 20px;">
 				    	<label class="sr-only">测试地址</label>
-				    	{% set url = "http://192.168.1.227:8080/index_f617d58.html" %}
+				    	{% set url = "http://192.168.1.227:8080" %}
 				    	<input id="url" type="text" value="{{ url }}" class="form-control" placeholder="测试地址">
 				  	</div>
 				</form>

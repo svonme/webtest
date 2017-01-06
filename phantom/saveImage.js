@@ -12,10 +12,7 @@ class saveImage{
 		let location = Url.parse(url, true);
 		let size = await this.page.property('viewportSize');
 		//拿到 hash 部分
-		let { hash = "" } = location;
-		if(typeof hash == "object"){
-			hash = "";
-		}
+		let hash = location['hash'] || "";
 		hash = hash.replace(/^#+\//,"");
 		//根据 hash 处理路由
 		let router = Url.parse(hash);

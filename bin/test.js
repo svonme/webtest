@@ -1,3 +1,3 @@
 
 require('babel-register');
-require("../test/pdfkit.js");
+require("../test/main.js");

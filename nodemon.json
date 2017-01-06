@@ -12,7 +12,7 @@
 	"watch": [
 		"phantom/",
 		"modules/",
-		"router",
+		"test/",
 		"app.js"
 	],
 	"env": {
